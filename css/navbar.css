@@ -1,0 +1,62 @@
+
+.mainNav {
+  display: flex;
+  flex-flow: row;
+  justify-content: space-between;
+
+}
+.sprintSelector {
+    background-color: #333333;  
+  margin: 0px;
+  padding: 0px;
+}
+.sprintSelector ul label {
+    background-color: #555;
+    color: #dddddd;
+  margin-right: 2px;
+  padding: 3px;
+  border-radius: 2px;
+  cursor: pointer;
+    box-shadow: 3px 3px 2px rgb(30, 30, 30);
+}
+.sprintSelector ul {
+  display: flex;
+  flex-flow: row;
+  list-style-type: none;
+  margin: 0px 0px 0px 0px;
+  padding: 8px 2px 8px 4px;
+
+}
+.sprintSelector ul li:hover ul {
+  display: block;
+}
+.sprintSelector ul ul {
+    background-color: rgb(180,180,180);
+  display: flex;
+  flex-flow: column;
+  list-style-type: none;
+  padding: 0px;
+position: absolute;
+    display: none;
+    width: inherit;
+  box-shadow: 3px 3px 2px rgb(30, 30, 30);
+}
+.sprintSelector ul ul li{
+  border: solid;
+  border-width: 1px 0px 1px 0px;
+  cursor: pointer;
+}
+.sprintSelector ul label:hover{
+    background-color: navy;
+    color: #cccccc;
+    border-color: black;
+}
+.sprintSelector ul ul li:hover{
+    background-color: navy;
+    color: #cccccc;
+    border-color: black;
+}
+.sprintSelector ul label:after {
+   color: #cccccc;
+   content: " \25BE";
+}

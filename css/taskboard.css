@@ -1,0 +1,158 @@
+
+body {
+	background-color: rgb(40,40,40);
+	font-family: sans-serif;
+}
+.task {
+		background-color: rgb(180,180,180);
+		margin: 10px 10px 10px 10px;
+		padding: 2;
+		font-size: 12;
+		height: 80;
+		width: 40%;
+		display: flex;
+		flex-direction: column;
+		box-shadow: 4px 4px 2px rgb(30, 30, 30);
+	}
+.tasklist {
+		display: flex;
+		flex-flow: row wrap;
+		flex-grow: 1;
+		ondrop: 'drop(event)';
+		ondragover: 'allowDrop(event)';
+
+	}
+.taskphase {
+		background-color: rgb(90,90,90);
+		display: flex;
+		flex-flow: column;
+		margin: 4px 4px 4px 4px;
+	}
+.taskboard {
+		display: flex;
+		flex-direction: row;
+		margin: 4px 4px 4px 4px;
+		width: 100%;
+	}
+.devTaskId {
+		font-weight: bold;
+		text-align: left;
+		background-color: navy;
+		color: white;
+		font-size: 10px;
+	  cursor: pointer;
+	}
+.phaseTitle {
+		text-align: center;
+		background-color: rgb(50, 50, 80);
+		color: rgb(20, 20, 20);
+		font-size: 24px;
+	}
+.taskTitle {
+		font-size: 12px;
+	}
+
+.taskTitle:hover .description { /* NEW */
+    display: block;
+}
+
+.description {
+		display: none;
+    background: #F8F8F0;
+    margin-left: 28px;
+    margin-top: -8px;
+    padding: 2px;
+    position: absolute;
+    z-index: 1000;
+    width:150px;
+    height:80px;
+   	}
+
+
+	.assignee {
+		width: 40px;
+	}
+	.tasklist-ToDo {
+		background-color: rgb(205,115,115);
+	}
+	.tasklist-InProgress {
+		background-color: rgb(205,205,115);
+	}
+	.tasklist-CodeReview {
+		background-color: rgb(205,165,115);
+	}
+	.tasklist-Pushed {
+		background-color: rgb(100,205,115);
+	}
+	.tasklist-Released {
+		background-color: rgb(115,115,205);
+	}
+
+.radio {
+  display: flex;
+  flex-flow: row;
+  background-color: #333333;  
+  margin: 0px;
+  padding: 0px;
+}
+.radioItem {
+    background-color: #555;
+    color: #dddddd;
+  margin: 4px 2px 4px 2px;
+  padding: 4px 2px 4px 2px;
+  cursor: pointer;
+    box-shadow: 3px 3px 2px rgb(30, 30, 30);
+  list-style-type: none;
+}
+	.radio > .selected{
+  background-color: #cccccc;  
+  color: #333333;  
+    box-shadow: 3px 3px 2px rgb(60, 60, 60) inset;
+}
+
+.title {
+    background-color: #555;
+    font-size: 14pt;
+}
+.titleName {
+	color: #ccc;
+}
+.titleValue {
+	color: #aae;
+}
+
+.cfdContainer {
+	display: flex;
+	flex-flow: row wrap;
+	width: 100%;
+	margin-top: 50px;
+	margin-left: 50px;
+}
+.cfdChart {
+	display: flex;
+	flex-flow: row wrap;
+}
+.cfdBar {
+	display: flex;
+	flex-direction: column;
+	margin-right: 5px;
+	justify-content: flex-end;
+	width: 50px;
+}
+.cfdBarLabel {
+	text-align: center;
+	color: #ccc;
+}
+.legend {
+	display: flex;
+	flex-direction: column;
+	width: 100px;
+	margin-left: 50px;	
+}
+.legend label {
+	margin-bottom: 8px;
+	text-align: center;
+}
+.legendTitle {
+	color: #ccc;
+}
