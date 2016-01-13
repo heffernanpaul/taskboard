@@ -1,4 +1,4 @@
-function loadTasks(project, sprint) {
+function loadTasks(project, sprint, callback) {
     var taskStatuses = ['ToDo', 'InProgress', 'CodeReview', 'Pushed', 'Released'];
     var tasksByStatus = new Map();
     taskStatuses.forEach(status => {
@@ -10,7 +10,7 @@ function loadTasks(project, sprint) {
       }
       tasksByStatus.set(status, tasks);
     });
-    return tasksByStatus;
+    callback(tasksByStatus);
   }
 
 function updateTaskStatus(tasksByStatus, taskId, newStatus) {
@@ -31,34 +31,46 @@ function updateTaskStatus(tasksByStatus, taskId, newStatus) {
 }
 
 
-function loadSprints() {
-  var map = new Map();
-  map.set('Ark', ['2015-11-27','2015-12-04','2015-12-18']);
-  map.set('Hydra', ['2015-11-27','2015-12-04','2015-12-18']);
-  map.set('Pipeline', ['2015-11-27','2015-12-04','2015-12-18']);
-  map.set('Graphics', ['2015-11-27','2015-12-04','2015-12-18']);
-  return map;
+function loadSprints(callback) {
+  var map = [
+    {
+      project: 'ark_sprints', 
+      sprints: ['2015-11-27','2015-12-04','2015-12-18']
+    },
+  { project: 'hydra_sprints',
+    sprints: ['2015-11-27','2015-12-04','2015-12-18']
+  },
+  { project: 'pipeline_sprints', sprints: ['2015-11-27','2015-12-04','2015-12-18']},
+  { project:'graphics_sprints', sprints:['2015-11-27','2015-12-04','2015-12-18']}
+];
+  callback(map);
 }
 
-function loadCumulativeFlowDiagram(project, sprint) {
+function loadTasksByDate(project, sprint) {
 
+return [ {
+  date: '2015-11-01',
+  tasks: [
+    {taskid: 12345, status: 'Complete'},
+    {taskid: 12346, status: 'Complete'},
+    {taskid: 12347, status: 'InProgress'},
+    {taskid: 12348, status: 'Complete'},
+
+  ]}];
+}
+
+function loadCFD(project, sprint) {
+  var tasksByDate = loadTasksByDate(project, sprint);
+
+  return tasksByDate.entries().map((key, value) => key, countByStatus(value));
+}
+
+function countByStatus(tasks) {
   var map = new Map();
-  var date = new Date();
-  var i = 14;
-  for (var j = 0; j < 14; j++) {
-    var cfdDate = new Date(date);
-
-    map.set(cfdDate, {
-      todoCount: i,
-      inProgressCount: 2,
-      codeReviewCount: 2,
-      pushedCount: 2,
-      completeCount: j
-    });
-
-    date.setDate(date.getDate() + 1);
-    i--;
-  }
-
-  return map;
+  tasks.forEach(task => {
+    if (map.has(task.status)) {
+      map.set(task.status, map.get(task.status)+1);
+    }
+  });
+  return [...map.entries().map((key, value) => {key, value})];
 }

@@ -1,6 +1,4 @@
 
-"use strict";
-
 /*****************************************
 /****        View Components       *******
 ******************************************/
@@ -12,36 +10,38 @@ function dayOfWeekAsInteger(day) {
 }
 
 var RadioButton = React.createClass({
+  showItem: function(value, selected) {
+  	var className = 'radioItem' + (selected==value ? ' selected' : '');
+  	return (<li key={value} className={className}
+          onClick= { (ev) => this.props.onSelectionChanged(value)}>{value}</li>);
+  },
   render: function() {
-    return React.DOM.ul({className: 'radio'}, 
-      this.props.values.map((value) => React.DOM.li(
-        {
-          key: value, 
-          className: 'radioItem' + (this.props.selected == value ? ' selected' : ''),
-          onClick: (ev) => this.props.onSelectionChanged(value)
-          }, 
-        value)));
+    return (<ul className='radio'> 
+      {this.props.values.map((value) => this.showItem(value, this.props.selected))} 
+       </ul>);
     }
   });
 
 var SprintNav = React.createClass({
+
+  renderSprint: function(project, sprint) {
+    return <li title='Open sprint' key={sprint}
+                  onClick={(ev) => this.props.onSelectionChanged(project, sprint)}>{sprint}</li>;
+  },
+  renderProject: function(project, sprints) {
+    var sprintList = [...sprints].map((sprint)=>this.renderSprint(project, sprint));
+
+    return <li key={project} title='Open current sprint'> 
+            <label>{project.replace('_sprints','')}</label>
+              <ul>{[...sprintList]}</ul>
+            </li>;
+
+  },
   render: function() {
 
-      return React.DOM.div({className: 'sprintSelector'}, 
-        React.DOM.ul({}, 
-          [...this.props.projects.entries()].map((entry) => 
-          React.DOM.li({key:entry[0], title: 'Open current sprint'}, 
-            React.DOM.label({}, entry[0]),
-            React.DOM.ul({}, [...Array.from(entry[1], 
-              (name) => React.DOM.li({
-                  title: 'Open sprint', 
-                  key: name,
-                  onClick: (ev) => this.props.onSelectionChanged(entry[0], name)
-                }, name))])
-            )
-          )
-        )
-        )
+       var projectList = this.props.projects.map((project) => this.renderProject(project.project, project.sprints));
+
+      return  <div className='sprintSelector'><ul>{[...projectList]}</ul></div>;
       }
     });
 
@@ -53,11 +53,12 @@ var DevTaskTile =  React.createClass({
   },
 
   render: function() {
-    return React.DOM.div({className: "task", draggable: true, onDragStart: this.drag}, 
-      React.DOM.label({className: 'devTaskId'}, this.props.task.id),
-      React.DOM.label({className: 'taskTitle'}, this.props.task.title,
-        React.DOM.div({className: 'description'}, this.props.task.description)),
-      React.DOM.img({src: this.props.task.assignee + ".jpg", className: 'assignee'})
+    return (<div className='task' draggable='true' onDragStart= {this.drag}> 
+      <label className='devTaskId'>{this.props.task.id}</label>
+      <label className='taskTitle'>{this.props.task.title}
+      <div className='description'>{this.props.task.description}</div></label>
+      <img src={this.props.task.assignee + '.jpg'} className='assignee'></img>
+      </div>
       );
     }
   });
@@ -76,10 +77,12 @@ var TaskList = React.createClass({
     render: function() {
 
       var taskTiles = this.props.tasks.map((task) => React.createElement(DevTaskTile, {key: task.id, task: task, onDragOver: this.allowDrop}));
-
-      return React.DOM.div({className: "taskphase", onDrop: this.drop, onDragOver: this.allowDrop}, 
-                React.DOM.label({className: 'phaseTitle  tasklist-' + this.props.status}, this.props.status),
-                React.createElement("div", {className: "tasklist", onDragOver: this.allowDrop, onDrop: this.drop}, taskTiles)
+      return (<div className='taskphase' onDrop={this.drop}  onDragOver={this.allowDrop}> 
+                <label className={'phaseTitle  tasklist-' + this.props.status}>{this.props.status}</label>
+                <div className='tasklist' onDragOver={this.allowDrop} onDrop={this.drop}>
+                	{taskTiles}
+                </div>
+                </div>
                 );
         }
     });
@@ -91,7 +94,7 @@ var TaskBoard = React.createClass({
       this.props.taskMap.forEach((tasks, status) => {
         divs.push(React.createElement(TaskList, {key: status, status: status, tasks: tasks, onStatusUpdated: (taskId, status) => this.props.onStatusUpdated(taskId, status)}))});
  
-      return React.DOM.div({className: "taskboard"}, divs);
+      return <div className='taskboard'>{divs}</div>;
     }
 });
 
@@ -101,44 +104,46 @@ var AgileBoard = React.createClass({
       var model = this.props.model;
       var controller = this.props.controller;
 
-      var view = model.selectedView == 'TaskBoard' ? 
-        React.createElement(TaskBoard, {taskMap: model.taskMap, currentView: model.view, onStatusUpdated: (taskId, status) => this.props.controller.updateStatus(taskId, status)}) :
-        React.createElement(BurnDown, {cfd: model.cfd});
+      var view = this.props.model.selectedView == 'TaskBoard' ? 
+        <TaskBoard taskMap={model.taskMap} currentView={model.view} 
+            onStatusUpdated={(taskId, status) => this.props.controller.updateStatus(taskId, status)}/> :
+        <BurnDown cfd={model.cfd}/>;
  
-      return React.DOM.div({},
-            React.DOM.nav({className: 'mainNav'},
-              React.createElement(SprintNav, {projects: model.sprints, onSelectionChanged: this.props.controller.sprintSelectionChanged}),
-              React.createElement(SprintTitle, {project: model.selectedProject, sprint: model.selectedSprint}),
-              React.createElement(RadioButton, {values: model.views, selected: model.selectedView, onSelectionChanged: (view) => this.props.controller.viewSelectionChanged(view)})
-            ),view
-          );
+      var nav = <nav className='mainNav'>
+              <SprintNav projects={model.sprints} onSelectionChanged={(project,sprint) => this.props.controller.sprintSelectionChanged(project,sprint)}/>
+              <SprintTitle project={model.selectedProject} sprint={model.selectedSprint}/>
+              <RadioButton values={model.views} selected={model.selectedView} onSelectionChanged={(view) => this.props.controller.viewSelectionChanged(view)}/>
+             </nav>;
+
+      return <div>{nav}{view}</div>;
     }
 });
 
 var SprintTitle = React.createClass({
   render: function() {
-    return React.DOM.table({className: 'title'},
-      React.DOM.tbody({}, 
-        React.DOM.tr({}, 
-          React.DOM.td({className: 'titleName'},'Project:'), 
-          React.DOM.td({className: 'titleValue'},this.props.project), 
-          React.DOM.td({className: 'titleName'},'Sprint:'), 
-          React.DOM.td({className: 'titleValue'},this.props.sprint) 
-          )
-        )
-      );
+    return (<table className = 'title'>
+      <tbody> 
+        <tr> 
+          <td className= 'titleName'>Project:</td>
+          <td className= 'titleValue'>{this.props.project.replace('_sprints','')}</td>
+          <td className= 'titleName'>Sprint:</td> 
+          <td className= 'titleValue'>{this.props.sprint}</td>
+         </tr>
+        </tbody>
+      </table>);
   }
 });
 
 var BurndownLegend = React.createClass({
   render: function() {
-    return React.DOM.div({className:'legend'},
-      React.DOM.label({className:'legendTitle'}, 'Legend'),
-      React.DOM.label({className:'tasklist-ToDo'}, 'ToDo'),
-      React.DOM.label({className:'tasklist-InProgress'}, 'In Progress'),
-      React.DOM.label({className:'tasklist-CodeReview'}, 'Code Review'),
-      React.DOM.label({className:'tasklist-Pushed'}, 'Pushed'),
-      React.DOM.label({className:'tasklist-Released'}, 'Released')
+    return (<div className='legend'>
+      <label className='legendTitle'>Legend</label>
+      <label className='tasklist-ToDo'>ToDo</label>
+      <label className='tasklist-InProgress'>In Progress</label>
+      <label className='tasklist-CodeReview'>Code Review</label>
+      <label className='tasklist-Pushed'>Pushed</label>
+      <label className='tasklist-Released'>Released</label>
+      	</div>
       );
   }
 
@@ -146,10 +151,12 @@ var BurndownLegend = React.createClass({
 
 var BurnDown = React.createClass({
   render: function() {
-    var cfd = this.props.cfd;
-    return React.DOM.div({className: 'cfdContainer'},
-              React.DOM.div({className: 'cfdChart'},  [...cfd.entries()].map(this.createBar)),
-            React.createElement(BurndownLegend, {}))
+    return <div className='cfdContainer'>
+              <div className='cfdChart'>
+              	{[...this.props.cfd.entries()].map(this.createBar)}
+    				<BurndownLegend />    			
+    			</div>
+    		</div>
     ;
   },
 
@@ -157,79 +164,73 @@ var BurnDown = React.createClass({
     var date = entry[0];
     var unitHeight = 20;
     var cfdValues = entry[1];
-            return React.DOM.div({className: 'cfdBar', key: date.toString()},
-                React.DOM.div({className: 'tasklist-ToDo', style: {height: cfdValues.todoCount*unitHeight}}, ' '),
-                React.DOM.div({className: 'tasklist-InProgress', style: {height: cfdValues.inProgressCount*unitHeight}}),
-                React.DOM.div({className: 'tasklist-CodeReview', style: {height: cfdValues.codeReviewCount*unitHeight}}),
-                React.DOM.div({className: 'tasklist-Pushed', style: {height: cfdValues.pushedCount*unitHeight}}),
-                React.DOM.div({className: 'tasklist-Released', style: {height: cfdValues.completeCount*unitHeight}}),
-                React.DOM.label({className: 'cfdBarLabel'}, dayOfWeekAsInteger(date.getDay())
-                  )
-            );
+    return <div className='cfdBar' key={date.toString()}>
+        <div className='tasklist-ToDo' style={{height: cfdValues.todoCount*unitHeight}}/>
+        <div className='tasklist-InProgress' style={{height: cfdValues.inProgressCount*unitHeight}}/>
+        <div className='tasklist-CodeReview' style={{height: cfdValues.codeReviewCount*unitHeight}}/>
+        <div className='tasklist-Pushed' style={{height: cfdValues.pushedCount*unitHeight}}/>
+        <div className='tasklist-Released' style={{height: cfdValues.completeCount*unitHeight}}/>
+        <label className='cfdBarLabel'>{dayOfWeekAsInteger(date.getDay())}</label>
+        </div>
+    ;
 
   }
 });
 
-/*****************************************/
+
 
 
 /*****************************************
 /****            Data Model        *******
 ******************************************/
 
-class SprintModel {
-  constructor() {
-    this.selectedView = 'TaskBoard';
-    this.views = ['TaskBoard', 'Burndown'];
-    this.sprints = loadSprints();
-    this.selectedProject = 'Ark';
-    this.selectedSprint = '2015-12-18';
-    this.taskMap = loadTasks('Ark', '2015-12-18');
-    this.cfd = loadCumulativeFlowDiagram('Ark', '2015-12-18');
-  }
-  selectSprint(project, sprint) {
-    this.selectedSprint = sprint;
-    this.selectedProject = project;
-    this.taskMap = loadTasks(project, sprint);
-    this.cfd = loadCumulativeFlowDiagram(project, sprint);
-  }
-}
+var sprintModel = {
+    selectedView: 'TaskBoard',
+    views: ['TaskBoard'],//, 'Burndown'],
+    selectedProject: 'ark_sprints',
+    selectedSprint: '20160114',
+    sprints: null,
+    taskMap: []
+};
 
-class SprintController {
-  constructor(model, viewRefresh) {
-    this.model = model;
-    this.viewRefresh = viewRefresh;
-  }
-  selectSprint(project, sprint) {
-    this.model.selectSprint(project, sprint);
-    this.viewRefresh();
-  }
-  updateStatus(taskId, newStatus) {
-    updateTaskStatus(this.model.taskMap, taskId, newStatus);
-    this.viewRefresh();
-  }
-  sprintSelectionChanged(project, sprint) {
-    this.model.selectSprint(project, sprint);
-    this.viewRefresh();
-  }
-  viewSelectionChanged(selectedView) {
-    this.model.selectedView = selectedView;
-    this.viewRefresh();
-  }
-}
-var sprintModel = new SprintModel();
-var sprintController = new SprintController(sprintModel, drawScreen);
+var sprintController = {
+  selectSprint: function(project, sprint) {
+    sprintModel.selectedProject = project;
+    sprintModel.selectedSprint = sprint;
+    loadSprint(project, sprint);
+  },
 
-/*****************************************/
-
-
-/*****************************************
-/****        Event Handlers        *******
-******************************************/
+  updateStatus: function(taskId, newStatus) {
+    updateTaskStatus(sprintModel.taskMap, taskId, newStatus);
+    drawScreen();
+  },
+  sprintSelectionChanged: function(project, sprint) {
+    sprintController.selectSprint(project, sprint);
+    drawScreen();
+  },
+  viewSelectionChanged: function(selectedView) {
+    sprintModel.selectedView = selectedView;
+    drawScreen();
+  }
+};
 
 
 function drawScreen() {
   var screen = React.createElement(AgileBoard, {model: sprintModel, controller: sprintController});
   ReactDOM.render(screen, document.getElementById('container'));
 }
+
+function loadSprint(project, sprint) {
+
+    loadTasks(project, sprint, (taskMap) => 
+  {    
+    sprintModel.taskMap = taskMap;
+    drawScreen();
+  });
+
+}
+loadSprints((sprints) => {
+  sprintModel.sprints = sprints;
+  loadSprint(sprints[0].project, sprints[0].sprints[0]);
+});
 
