@@ -48,21 +48,132 @@ function loadSprints(callback) {
 
 function loadTasksByDate(project, sprint) {
 
-return [ {
-  date: '2015-11-01',
-  tasks: [
-    {taskid: 12345, status: 'Complete'},
-    {taskid: 12346, status: 'Complete'},
-    {taskid: 12347, status: 'InProgress'},
-    {taskid: 12348, status: 'Complete'},
+return [ 
+  {
+    date: '2015-11-01',
+    status: "ToDo",
+    tasks: 5
+  },
+  {
+    date: '2015-11-01',
+    status: "InProgress",
+    tasks: 0
+  },
+  {
+    date: '2015-11-01',
+    status: "CodeReview",
+    tasks: 0
+  },
+  {
+    date: '2015-11-01',
+    status: "CodeReview",
+    tasks: 0
+  },
 
-  ]}];
+  {
+    date: '2015-11-02',
+    status: "ToDo",
+    tasks: 4
+  },
+  {
+    date: '2015-11-02',
+    status: "InProgress",
+    tasks: 1
+  },
+  {
+    date: '2015-11-02',
+    status: "CodeReview",
+    tasks: 0
+  },
+  {
+    date: '2015-11-02',
+    status: "CodeReview",
+    tasks: 0
+  },
+
+  {
+    date: '2015-11-03',
+    status: "ToDo",
+    tasks: 2
+  },
+  {
+    date: '2015-11-03',
+    status: "InProgress",
+    tasks: 1
+  },
+  {
+    date: '2015-11-03',
+    status: "CodeReview",
+    tasks: 1
+  },
+  {
+    date: '2015-11-03',
+    status: "Code Review",
+    tasks: 0
+  },
+
+  {
+    date: '2015-11-04',
+    status: "ToDo",
+    tasks: 0
+  },
+  {
+    date: '2015-11-04',
+    status: "In Progress",
+    tasks: 1
+  },
+  {
+    date: '2015-11-04',
+    status: "CodeReview",
+    tasks: 1
+  },
+  {
+    date: '2015-11-04',
+    status: "Pushed",
+    tasks: 1
+  },
+  {
+    date: '2015-11-04',
+    status: "Released",
+    tasks: 3  
+  }
+
+  ];
 }
 
 function loadCFD(project, sprint) {
   var tasksByDate = loadTasksByDate(project, sprint);
+  var currentDate = null;
+  var cfd = [];
+  var counters = null;
 
-  return tasksByDate.entries().map((key, value) => key, countByStatus(value));
+  for (var i = 0; i < tasksByDate.length; i++) {
+
+    var taskCount = tasksByDate[i];
+    if (taskCount.date != currentDate) {
+      currentDate = taskCount.date;
+      counters = {
+          date: Date.parse(taskCount.date),
+          ToDoCount: 0,
+          InProgressCount: 0,
+          CodeReviewCount: 0,
+          PushedCount: 0,
+          ReleasedCount:0
+      };
+      cfd.push(counters);
+    }
+    
+      var taskStatus = convertStatus(taskCount.status);
+      counters[taskStatus+'Count'] = counters[taskStatus+'Count'] + taskCount.tasks; 
+    }
+  
+
+  return cfd;
+
+}
+
+function convertStatus(status) {
+  return status;
 }
 
 function countByStatus(tasks) {

@@ -153,23 +153,23 @@ var BurnDown = React.createClass({
   render: function() {
     return <div className='cfdContainer'>
               <div className='cfdChart'>
-              	{[...this.props.cfd.entries()].map(this.createBar)}
+              	{[...this.props.cfd].map(this.createBar)}
     				<BurndownLegend />    			
     			</div>
     		</div>
     ;
   },
 
-  createBar: function(entry) {
-    var date = entry[0];
+  createBar: function(cfdValues) {
+    console.log(cfdValues);
+    var date = new Date(cfdValues.date);
     var unitHeight = 20;
-    var cfdValues = entry[1];
     return <div className='cfdBar' key={date.toString()}>
-        <div className='tasklist-ToDo' style={{height: cfdValues.todoCount*unitHeight}}/>
-        <div className='tasklist-InProgress' style={{height: cfdValues.inProgressCount*unitHeight}}/>
-        <div className='tasklist-CodeReview' style={{height: cfdValues.codeReviewCount*unitHeight}}/>
-        <div className='tasklist-Pushed' style={{height: cfdValues.pushedCount*unitHeight}}/>
-        <div className='tasklist-Released' style={{height: cfdValues.completeCount*unitHeight}}/>
+        <div className='tasklist-ToDo' key="ToDo" style={{height: cfdValues.ToDoCount*unitHeight}}/>
+        <div className='tasklist-InProgress' key="InProgress" style={{height: cfdValues.InProgressCount*unitHeight}}/>
+        <div className='tasklist-CodeReview' key="CodeReview" style={{height: cfdValues.CodeReviewCount*unitHeight}}/>
+        <div className='tasklist-Pushed' key="Pushed" style={{height: cfdValues.PushedCount*unitHeight}}/>
+        <div className='tasklist-Released' key="Released" style={{height: cfdValues.ReleasedCount*unitHeight}}/>
         <label className='cfdBarLabel'>{dayOfWeekAsInteger(date.getDay())}</label>
         </div>
     ;
@@ -186,10 +186,11 @@ var BurnDown = React.createClass({
 
 var sprintModel = {
     selectedView: 'TaskBoard',
-    views: ['TaskBoard'],//, 'Burndown'],
+    views: ['TaskBoard', 'Burndown'],
     selectedProject: 'ark_sprints',
     selectedSprint: '20160114',
     sprints: null,
+    cfd: [],
     taskMap: []
 };
 
@@ -222,6 +223,7 @@ function drawScreen() {
 
 function loadSprint(project, sprint) {
 
+  sprintModel.cfd = loadCFD(project, sprint);
     loadTasks(project, sprint, (taskMap) => 
   {    
     sprintModel.taskMap = taskMap;
