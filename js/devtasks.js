@@ -4,9 +4,12 @@ function loadTasks(project, sprint, callback) {
     taskStatuses.forEach(status => {
       var tasks = [];
       for (var i = 0; i < 10; i++) {
-        tasks.push({id: project + '-' + status + '-'+100+i, status: status, title: 'Do this, do that', 
+        tasks.push({id: project + '-' + status + '-'+100+i, status: status, title: 'Do this, do that, do the other', 
           description: 'Blah, Blah, Blah, Blah, Blah, Blah',
-          assignee: 'gromit'}); 
+          assignee: 'gromit',
+          quote: 1.0,
+          remaining: 1.0 - (i * 0.2),
+          used: (i *0.2)}); 
       }
       tasksByStatus.set(status, tasks);
     });

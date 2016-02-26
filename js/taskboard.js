@@ -45,6 +45,23 @@ var SprintNav = React.createClass({
       }
     });
 
+function formatFloat(x, precision){
+  return x.toFixed(precision).replace(/\.?0*$/,'');
+}
+
+var TaskTime = React.createClass({
+  render: function() {
+      if (this.props.task.used > 0.0000001) {
+        if (this.props.task.used > this.props.task.quote) {
+          return (<div className='taskTime overTime'>{formatFloat(this.props.task.used, 2)}/{formatFloat(this.props.task.quote, 2)}</div>);
+        } else {
+          return (<div className='taskTime'>{formatFloat(this.props.task.used, 2)}/{formatFloat(this.props.task.quote, 2)}</div>);
+        }
+      } else {
+          return (<div className='taskTime'>{formatFloat(this.props.task.quote, 2)}</div>);
+       }
+    }
+  });
 
 var DevTaskTile =  React.createClass({
 
@@ -54,10 +71,14 @@ var DevTaskTile =  React.createClass({
 
   render: function() {
     return (<div className='task' draggable='true' onDragStart= {this.drag}> 
-      <label className='devTaskId'>{this.props.task.id}</label>
-      <label className='taskTitle'>{this.props.task.title}
-      <div className='description'>{this.props.task.description}</div></label>
-      <img src={this.props.task.assignee + '.jpg'} className='assignee'></img>
+        <label className='devTaskId'>{this.props.task.id}</label>
+        <label className='taskTitle'>{this.props.task.title}
+        <div className='description'>{this.props.task.description}</div></label>
+        <div>
+          <img src={this.props.task.assignee + '.jpg'} className='assignee'></img>
+          <TaskTime task={this.props.task} />
+
+        </div>
       </div>
       );
     }
@@ -223,6 +244,10 @@ function drawScreen() {
 
 function loadSprint(project, sprint) {
 
+  window.localStorage.setItem('TaskBoardProject', project);
+  window.localStorage.setItem('TaskBoardSprint', sprint);
+    console.log("Stored project " + project);
+
   sprintModel.cfd = loadCFD(project, sprint);
     loadTasks(project, sprint, (taskMap) => 
   {    
@@ -233,6 +258,19 @@ function loadSprint(project, sprint) {
 }
 loadSprints((sprints) => {
   sprintModel.sprints = sprints;
-  loadSprint(sprints[0].project, sprints[0].sprints[0]);
+  var project = window.localStorage.getItem('TaskBoardProject');
+  var sprint = window.localStorage.getItem('TaskBoardSprint');
+  console.log(project);
+  if (project != null && sprint != null) {
+    loadSprint(project, sprint);
+  } else {
+    project = sprints[0].project;
+    sprint = sprints[0].sprints[0];
+  }
+    sprintModel.selectedProject = project;
+    sprintModel.selectedSprint = sprint;
+    loadSprint(project, sprint);
+
+  
 });
 

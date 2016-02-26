@@ -52,6 +52,14 @@ body {
 		font-size: 12px;
 	}
 
+.taskTime {
+		text-align: right;
+		font-size: 12px;
+	}
+.overTime {
+		color: red;
+	}
+
 .taskTitle:hover .description { /* NEW */
     display: block;
 }
